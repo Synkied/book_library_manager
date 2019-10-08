@@ -96,7 +96,7 @@
         <v-btn @click="addBook()">Add book</v-btn>
       </v-flex>
       <v-btn color="success" @click="registerUser()">text</v-btn>
-      <v-btn color="error" @click="confirmModalBuilder('User');deleteUser()">text</v-btn>
+      <v-btn color="error" @click="deleteUser()">text</v-btn>
     </v-layout>
 
   <confirmModal
@@ -185,6 +185,7 @@ export default {
         bookToDelete.title = book.title
         bookToDelete.author = book.author
         let response = await this.$BackendAPI.bookDelete(bookToDelete)
+        this.getBooks()
       } catch (err) {
         console.error(err.response)
       }

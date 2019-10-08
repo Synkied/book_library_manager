@@ -110,6 +110,26 @@ class BookView(MethodView):
             )
 
 
+class BookDeleteView(MethodView):
+    def post(self):
+        try:
+            post_data = request.get_json()
+            print(post_data)
+            query = Book.delete().where(
+                Book.title == post_data['title'],
+                Book.author == post_data['author'],
+            )
+            query.execute()
+            message = 'Book: {}, {} deleted.'.format(
+                post_data['title'], post_data['author']
+            )
+            response = jsonify({'data': message})
+            response.status_code = 200
+            return response
+        except Exception:
+            abort(400)
+
+
 class AuthorView(MethodView):
     def get(self):
         authors = Author.select()
@@ -153,25 +173,6 @@ class AuthorDeleteView(MethodView):
             query = Author.delete().where(Author.name == post_data['name'])
             query.execute()
             message = 'Author: {} deleted.'.format(post_data['name'])
-            response = jsonify({'data': message})
-            response.status_code = 200
-            return response
-        except Exception:
-            abort(400)
-
-
-class BookDeleteView(MethodView):
-    def post(self):
-        try:
-            post_data = request.get_json()
-            query = Book.delete().where(
-                Book.title == post_data['title'],
-                Book.author == post_data['author'],
-            )
-            query.execute()
-            message = 'Book: {}, {} deleted.'.format(
-                post_data['title'], post_data['author']
-            )
             response = jsonify({'data': message})
             response.status_code = 200
             return response

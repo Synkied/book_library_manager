@@ -48,6 +48,7 @@ class Book(Model):
             'id': self.id,
             'title': str(self.title).strip(),
             'author_name': self.author.name,
+            'author': self.author.id,
         }
         return serialized_data
 
@@ -66,7 +67,7 @@ class BookInstance(Model):
     A book instance. Because one book can be bought multiple times
     by the library
     :param fk book: the book
-    :param str library_location: book insance's location in the library
+    :param str library_location: book instance's location in the library
     """
     book = ForeignKeyField(Book)
     library_location = CharField()
