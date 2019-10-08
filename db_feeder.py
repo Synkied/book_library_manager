@@ -51,13 +51,19 @@ books_json = os.path.join(
 
 
 with open(authors_json) as authors:
-    authors_data = json.load(authors)
-
-    for author in authors_data:
-        create_author(author)
+    try:
+        authors_data = json.load(authors)
+        for author in authors_data:
+            create_author(author)
+        print('Authors populated in database.')
+    except OSError as oserr:
+        print('Problem creating Authors: {}'.format(oserr))
 
 with open(books_json) as books:
-    books_data = json.load(books)
-
-    for book in books_data:
-        create_book(book)
+    try:
+        books_data = json.load(books)
+        for book in books_data:
+            create_book(book)
+        print('Books populated in database.')
+    except OSError as oserr:
+        print('Problem creating Books: {}'.format(oserr))

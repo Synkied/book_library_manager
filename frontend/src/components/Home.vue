@@ -28,7 +28,7 @@
                 </v-btn>
               </v-list-item-action>
               <v-list-item-action>
-                <v-btn icon>
+                <v-btn @click="confirmModalBuilder('Book', book.title);bookToDelete = book" icon>
                   <v-icon color="grey lighten-1">delete</v-icon>
                 </v-btn>
               </v-list-item-action>
@@ -59,7 +59,7 @@
                 </v-btn>
               </v-list-item-action>
               <v-list-item-action>
-                <v-btn icon>
+                <v-btn @click="confirmModalBuilder('Author', author.name);authorToDelete = author.name" icon>
                   <v-icon color="grey lighten-1">delete</v-icon>
                 </v-btn>
               </v-list-item-action>
@@ -89,20 +89,49 @@
             v-model="newBookAuthor"
             label="Book author"/>
           <v-btn
-            @click="addAuthor();addAuthorOverlay = false">
+            @click="addAuthor();addAuthorOverlay = !addAuthorOverlay">
             Add author
           </v-btn>
         </v-overlay>
         <v-btn @click="addBook()">Add book</v-btn>
       </v-flex>
       <v-btn color="success" @click="registerUser()">text</v-btn>
+      <v-btn color="error" @click="confirmModalBuilder('User');deleteUser()">text</v-btn>
     </v-layout>
+
+  <confirmModal
+    v-if="confirmDeleteAuthor.display"
+    :toolbarMsg='confirmDeleteAuthor.toolbarMsg'
+    :bodyMsg='confirmDeleteAuthor.bodyMsg'
+    :okBtnText='confirmDeleteAuthor.okBtnText'
+    :cancelBtnText='confirmDeleteAuthor.cancelBtnText'
+    :autofocus='confirmDeleteAuthor.autofocus'
+    @action="deleteAuthor(authorToDelete)"
+    @close="confirmDeleteAuthor.display = false">
+  </confirmModal>
+
+  <confirmModal
+    v-if="confirmDeleteBook.display"
+    :toolbarMsg='confirmDeleteBook.toolbarMsg'
+    :bodyMsg='confirmDeleteBook.bodyMsg'
+    :okBtnText='confirmDeleteBook.okBtnText'
+    :cancelBtnText='confirmDeleteBook.cancelBtnText'
+    :autofocus='confirmDeleteBook.autofocus'
+    @action="deleteBook(bookToDelete)"
+    @close="confirmDeleteBook.display = false">
+  </confirmModal>
+
   </div>
 </template>
 
 <script>
+import confirmModal from './confirmModal'
+
 export default {
   name: 'Home',
+  components: {
+    confirmModal
+  },
   data() {
     return {
       bookInfos: {
@@ -112,46 +141,144 @@ export default {
       newBookAuthor: '',
       authors: [],
       books: [],
-      addAuthorOverlay: false
+      addAuthorOverlay: false,
+      authorToDelete: '',
+      bookToDelete: '',
+      confirmDeleteAuthor: {
+        display: false,
+        toolbarMsg: '',
+        bodyMsg: '',
+        okBtnText: '',
+        cancelBtnText: '',
+        autofocus: ''
+      },
+      confirmDeleteBook: {
+        display: false,
+        toolbarMsg: '',
+        bodyMsg: '',
+        okBtnText: '',
+        cancelBtnText: '',
+        autofocus: ''
+      }
     }
   },
   methods: {
     async addBook (data) {
-      let response
-      if (data) {
-        response = await this.$BackendAPI.bookPost(data)
-      } else {
-        data = {
-          'author': this.bookInfos.author.id,
-          'title': this.bookInfos.title
+      try {
+        let response
+        if (data) {
+          response = await this.$BackendAPI.bookPost(data)
+        } else {
+          data = {
+            'author': this.bookInfos.author.id,
+            'title': this.bookInfos.title
+          }
+          response = await this.$BackendAPI.bookPost(data)
         }
-        response = await this.$BackendAPI.bookPost(data)
+      } catch (err) {
+        console.error(err.response)
       }
-      console.log(response)
+    },
+    async deleteBook (book) {
+      try {
+        let bookToDelete = {}
+        bookToDelete.title = book.title
+        bookToDelete.author = book.author
+        let response = await this.$BackendAPI.bookDelete(bookToDelete)
+      } catch (err) {
+        console.error(err.response)
+      }
     },
     async addAuthor (data) {
-      let response = await this.$BackendAPI.authorPost(data)
+      try {
+        let response
+        if (data) {
+          response = await this.$BackendAPI.authorPost(data)
+        } else {
+          data = {
+            'name': this.newBookAuthor
+          }
+          response = await this.$BackendAPI.authorPost(data)
+        }
+        this.getAuthors()
+      } catch (err) {
+        console.error(err.response)
+      }
+    },
+    async deleteAuthor (name) {
+      try {
+        let authorToDelete = {}
+        authorToDelete.name = name
+        let response = await this.$BackendAPI.authorDelete(authorToDelete)
+        this.getAuthors()
+      } catch (err) {
+        console.error(err.response)
+      }
     },
     async getAuthors () {
-      let response = await this.$BackendAPI.authorsGet()
-      this.authors = response.data.authors
+      try {
+        let response = await this.$BackendAPI.authorsGet()
+        this.authors = response.data.authors
+      } catch (err) {
+        console.error(err.response)
+      }
     },
     async getBooks () {
-      let response = await this.$BackendAPI.booksGet()
-      this.books = response.data.books
+      try {
+        let response = await this.$BackendAPI.booksGet()
+        this.books = response.data.books
+      } catch (err) {
+        console.error(err.response)
+      }
     },
     async registerUser (data) {
-      let response
-      if (data) {
-
-      } else {
-        data = {
-          username: 'toto',
-          email: 'toto@tutu.fr',
-          password: 'tata'
-        }
-        response = await this.$BackendAPI.userRegister(data)
-        console.log(response)
+      try {
+        let response
+        if (data) {
+          response = await this.$BackendAPI.userRegister(data)
+        } else {
+          data = {
+            username: 'toto',
+            email: 'toto@tutu.fr',
+            password: 'tata'
+          }
+          response = await this.$BackendAPI.userRegister(data)
+          }
+      } catch (err) {
+        console.error(err.response)
+      }
+    },
+    async deleteUser (data) {
+      try {
+        let response
+        if (data) {
+          response = await this.$BackendAPI.userDelete(data)
+        } else {
+          data = {
+            username: 'toto',
+          }
+          response = await this.$BackendAPI.userDelete(data)
+          }
+      } catch (err) {
+        console.error(err.response)
+      }
+    },
+    confirmModalBuilder (type, name, action) {
+      if (type === 'Author') {
+        this.confirmDeleteAuthor.display = true
+        this.confirmDeleteAuthor.toolbarMsg = `Delete ${type}: ${name}`
+        this.confirmDeleteAuthor.bodyMsg = `Do you really want to delete ${type}: ${name}?`
+        this.confirmDeleteAuthor.okBtnText = 'Yes'
+        this.confirmDeleteAuthor.cancelBtnText = 'No'
+        this.confirmDeleteAuthor.autofocus = 'No'
+      }
+      if (type === 'Book') {
+        this.confirmDeleteBook.display = true
+        this.confirmDeleteBook.toolbarMsg = `Delete ${type}: ${name}`
+        this.confirmDeleteBook.bodyMsg = `Do you really want to delete ${type}: ${name}?`
+        this.confirmDeleteBook.okBtnText = 'Yes'
+        this.confirmDeleteBook.cancelBtnText = 'No'
+        this.confirmDeleteBook.autofocus = 'No'
       }
     }
   },
