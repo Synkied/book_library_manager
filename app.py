@@ -9,8 +9,8 @@ from peewee import IntegrityError
 
 from exceptions import UniqueConstraint
 from models import Author
+from models import BookDescriptor
 from models import Book
-from models import BookInstance
 from models import User
 
 from werkzeug.exceptions import HTTPException
@@ -73,6 +73,65 @@ class UserDeleteView(MethodView):
             abort(400)
 
 
+class BookDescriptorView(MethodView):
+    def get(self):
+        book_descriptors = BookDescriptor.select()
+        data = [
+            book_descriptor.serialize for book_descriptor in book_descriptors
+        ]
+        if data:
+            response = jsonify({
+                "count": len(data),
+                "book_descriptors": data,
+            })
+            response.status_code = 200
+        else:
+            output = {
+                "error": "No results found."
+            }
+            response = jsonify(output)
+            response.status_code = 404
+        return response
+
+    def post(self):
+        try:
+            post_data = request.get_json()
+            book = BookDescriptor.create(**post_data)
+            query = BookDescriptor.select().where(
+                BookDescriptor.title == book.title,
+                BookDescriptor.author == book.author,
+            )
+            serialized_data = [q.serialize for q in query]
+            response = jsonify({'data': serialized_data})
+            response.status_code = 201
+            return response
+        except IntegrityError:
+            raise UniqueConstraint(
+                'This book already exists.',
+                status_code=400
+            )
+
+
+class BookDescriptorDeleteView(MethodView):
+    def post(self):
+        try:
+            post_data = request.get_json()
+            print(post_data)
+            query = BookDescriptor.delete().where(
+                BookDescriptor.title == post_data['title'],
+                BookDescriptor.author == post_data['author'],
+            )
+            query.execute()
+            message = 'BookDescriptor: {}, {} deleted.'.format(
+                post_data['title'], post_data['author']
+            )
+            response = jsonify({'data': message})
+            response.status_code = 200
+            return response
+        except Exception:
+            abort(400)
+
+
 class BookView(MethodView):
     def get(self):
         books = Book.select()
@@ -96,8 +155,8 @@ class BookView(MethodView):
             post_data = request.get_json()
             book = Book.create(**post_data)
             query = Book.select().where(
-                Book.title == book.title,
-                Book.author == book.author,
+                Book.book_descriptor == book.book_descriptor,
+                Book.library_location == book.library_location,
             )
             serialized_data = [q.serialize for q in query]
             response = jsonify({'data': serialized_data})
@@ -114,7 +173,6 @@ class BookDeleteView(MethodView):
     def post(self):
         try:
             post_data = request.get_json()
-            print(post_data)
             query = Book.delete().where(
                 Book.title == post_data['title'],
                 Book.author == post_data['author'],
@@ -180,16 +238,38 @@ class AuthorDeleteView(MethodView):
             abort(400)
 
 
-app.add_url_rule('/api/book', view_func=BookView.as_view('BookView'))
-app.add_url_rule('/api/book/delete',
-                 view_func=BookDeleteView.as_view('BookDeleteView'))
-app.add_url_rule('/api/author', view_func=AuthorView.as_view('AuthorView'))
-app.add_url_rule('/api/author/delete',
-                 view_func=AuthorDeleteView.as_view('AuthorDeleteView'))
-app.add_url_rule('/user/register',
-                 view_func=UserRegisterView.as_view('UserRegisterView'))
-app.add_url_rule('/user/delete',
-                 view_func=UserDeleteView.as_view('UserDeleteView'))
+app.add_url_rule(
+    '/api/book_descriptor',
+    view_func=BookDescriptorView.as_view('BookDescriptorView')
+)
+app.add_url_rule(
+    '/api/book_descriptor/delete',
+    view_func=BookDescriptorDeleteView.as_view('BookDescriptorDeleteView')
+)
+app.add_url_rule(
+    '/api/book',
+    view_func=BookView.as_view('BookView')
+)
+app.add_url_rule(
+    '/api/book/delete',
+    view_func=BookDeleteView.as_view('BookDeleteView')
+)
+app.add_url_rule(
+    '/api/author',
+    view_func=AuthorView.as_view('AuthorView')
+)
+app.add_url_rule(
+    '/api/author/delete',
+    view_func=AuthorDeleteView.as_view('AuthorDeleteView')
+)
+app.add_url_rule(
+    '/user/register',
+    view_func=UserRegisterView.as_view('UserRegisterView')
+)
+app.add_url_rule(
+    '/user/delete',
+    view_func=UserDeleteView.as_view('UserDeleteView')
+)
 
 if __name__ == '__main__':
     app.run(debug=debug)

@@ -8,7 +8,7 @@ from peewee import SqliteDatabase
 from config import DATABASE
 from werkzeug.security import generate_password_hash, check_password_hash
 
-library_db = SqliteDatabase(DATABASE)
+library_db = SqliteDatabase(DATABASE, pragmas=[('foreign_keys', 'on')])
 
 
 class Author(Model):
@@ -33,14 +33,14 @@ class Author(Model):
         database = library_db
 
 
-class Book(Model):
+class BookDescriptor(Model):
     """
-    A book object.
+    A book descriptor object.
     :param str title: book's title
     :param fk author: book's author
     """
     title = CharField()
-    author = ForeignKeyField(Author)
+    author = ForeignKeyField(Author, on_delete='CASCADE')
 
     @property
     def serialize(self):
@@ -62,28 +62,28 @@ class Book(Model):
         database = library_db
 
 
-class BookInstance(Model):
+class Book(Model):
     """
     A book instance. Because one book can be bought multiple times
     by the library
     :param fk book: the book
     :param str library_location: book instance's location in the library
     """
-    book = ForeignKeyField(Book)
+    book_descriptor = ForeignKeyField(BookDescriptor, on_delete='CASCADE')
     library_location = CharField()
 
     @property
     def serialize(self):
         serialized_data = {
             'id': self.id,
-            'book': self.book,
+            'book_descriptor': self.book_descriptor.id,
             'library_location': str(self.library_location).strip(),
         }
         return serialized_data
 
     def __str__(self):
         return '{0} ({1}), {2}'.format(
-            self.id, self.book.title, self.library_location
+            self.id, self.book_descriptor.title, self.library_location
         )
 
     class Meta:
@@ -157,8 +157,8 @@ def create_tables():
         library_db.create_tables(
             [
                 Author,
+                BookDescriptor,
                 Book,
-                BookInstance,
                 User,
             ]
         )

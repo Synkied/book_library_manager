@@ -48,10 +48,37 @@ const BackendAPI = {
                     throw err
                 }
             },
-            async booksGet () {
+            async bookDescriptorsGet () {
+                try {
+                    let url = `${process.env.VUE_APP_backendAPIURL}api/book_descriptor`
+                    let response = await axios.get(url)
+                    return response
+                } catch (err) {
+                    throw err
+                }
+            },
+            async bookDescriptorPost (data) {
+                try {
+                    let url = `${process.env.VUE_APP_backendAPIURL}api/book_descriptor`
+                    let response = await axios.post(url, data)
+                    return response
+                } catch (err) {
+                    throw err
+                }
+            },
+            async bookDescriptorDelete (data) {
+                try {
+                    let url = `${process.env.VUE_APP_backendAPIURL}api/book_descriptor/delete`
+                    let response = await axios.post(url, data)
+                    return response
+                } catch (err) {
+                    throw err
+                }
+            },
+            async booksGet (data) {
                 try {
                     let url = `${process.env.VUE_APP_backendAPIURL}api/book`
-                    let response = await axios.get(url)
+                    let response = await axios.get(url, data)
                     return response
                 } catch (err) {
                     throw err
@@ -60,15 +87,6 @@ const BackendAPI = {
             async bookPost (data) {
                 try {
                     let url = `${process.env.VUE_APP_backendAPIURL}api/book`
-                    let response = await axios.post(url, data)
-                    return response
-                } catch (err) {
-                    throw err
-                }
-            },
-            async bookDelete (data) {
-                try {
-                    let url = `${process.env.VUE_APP_backendAPIURL}api/book/delete`
                     let response = await axios.post(url, data)
                     return response
                 } catch (err) {

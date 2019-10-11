@@ -2,8 +2,8 @@ import json
 import os
 
 from models import Author
+from models import BookDescriptor
 from models import Book
-from models import BookInstance
 
 from peewee import IntegrityError
 
@@ -18,11 +18,11 @@ def create_author(author):
         print('Failed to create author.', e)
 
 
-def create_book(book):
-    author = Author.get(Author.name == book.get("author", ""))
+def create_book_descriptor(book_descriptor):
+    author = Author.get(Author.name == book_descriptor.get("author", ""))
     try:
-        Book.create(
-            title=book.get("title", ""),
+        BookDescriptor.create(
+            title=book_descriptor.get("title", ""),
             author=author.id
         )
 
@@ -30,12 +30,14 @@ def create_book(book):
         print('Failed to create author.', e)
 
 
-def create_book_instance(book_instance):
-    book = Book.get(Book.title == book_instance.get("title", ""))
+def create_book(book):
+    book = BookDescriptor.get(
+        BookDescriptor.title == book.get("title", "")
+    )
     try:
-        BookInstance.create(
+        Book.create(
             book=book.id,
-            library_location=book_instance.get("library_location", "")
+            library_location=book.get("library_location", "")
         )
 
     except IntegrityError as e:
@@ -45,8 +47,8 @@ def create_book_instance(book_instance):
 authors_json = os.path.join(
     os.path.dirname(os.path.realpath(__file__)), 'authors.json'
 )
-books_json = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), 'books.json'
+book_descriptors_json = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), 'book_descriptors.json'
 )
 
 
@@ -59,11 +61,11 @@ with open(authors_json) as authors:
     except OSError as oserr:
         print('Problem creating Authors: {}'.format(oserr))
 
-with open(books_json) as books:
+with open(book_descriptors_json) as book_descriptors:
     try:
-        books_data = json.load(books)
-        for book in books_data:
-            create_book(book)
-        print('Books populated in database.')
+        book_descriptors_data = json.load(book_descriptors)
+        for book in book_descriptors_data:
+            create_book_descriptor(book)
+        print('BookDescriptors populated in database.')
     except OSError as oserr:
-        print('Problem creating Books: {}'.format(oserr))
+        print('Problem creating BookDescriptors: {}'.format(oserr))
