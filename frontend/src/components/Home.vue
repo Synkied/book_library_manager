@@ -1,7 +1,7 @@
 <template>
   <div class="app">
     <v-layout wrap justify-center>
-      <v-flex xs5 px-5 py-2>
+      <v-flex xs6 px-5 py-2>
         <v-card>
           <v-card-title primary-title>
             Add a book
@@ -58,7 +58,7 @@
         </v-card>
       </v-flex>
       <v-spacer></v-spacer>
-      <v-flex xs5 px-5 py-2>
+      <v-flex xs6 px-5 py-2>
         <v-card>
           <v-card-title primary-title>
             Add a book descriptor
@@ -115,6 +115,7 @@
               <v-list-item-content>
                 <v-list-item-title v-text="book.title"></v-list-item-title>
                 <v-list-item-subtitle v-text="book.author_name"></v-list-item-subtitle>
+                <v-list-item-subtitle class="warning--text" v-text="book.library_location"></v-list-item-subtitle>
               </v-list-item-content>
 
               <v-list-item-action>
@@ -313,7 +314,7 @@ export default {
         let bookDescriptorToDelete = {}
         bookDescriptorToDelete.title = book.title
         bookDescriptorToDelete.author = book.author
-        console.log(bookDescriptorToDelete)
+        console.log(book)
         let response = await this.$BackendAPI.bookDescriptorDelete(bookDescriptorToDelete)
         this.getBookDescriptors()
       } catch (err) {
@@ -323,11 +324,11 @@ export default {
     async deleteBook (book) {
       try {
         let bookToDelete = {}
-        bookToDelete.title = book.title
-        bookToDelete.author = book.author
+        bookToDelete.book_descriptor = book.book_descriptor
+        bookToDelete.library_location = book.library_location
         console.log(bookToDelete)
         let response = await this.$BackendAPI.bookDelete(bookToDelete)
-        this.getBookDescriptors()
+        this.getBooks()
       } catch (err) {
         console.error(err.response)
       }
@@ -374,6 +375,7 @@ export default {
             let matchingBookDescriptor = this.bookDescriptors.filter(bookDescriptor => bookDescriptor.id === book.book_descriptor)[0]
             book.title = matchingBookDescriptor.title
             book.author_name = matchingBookDescriptor.author_name
+            book.author = matchingBookDescriptor.author
             return book
         })
       } catch (err) {
