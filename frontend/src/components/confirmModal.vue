@@ -9,16 +9,13 @@
 			@close="contentDeleteConfirmation = false"
 			transition="dialog-transition">
 			<v-card>
-				<v-card-title class="background elevation-4 py-1">
-					<span class="headline">
-						{{ toolbarMsg }}
-					</span>
-					<v-spacer></v-spacer>
-					<v-btn icon @click="$emit('close')">
-						<v-icon>close</v-icon>
-					</v-btn>
-				</v-card-title>
-				<v-card-text>
+				<v-toolbar dense>
+		      <v-toolbar-title class="overline">{{ toolbarMsg }}</v-toolbar-title>
+		      <v-btn icon>
+		        <v-icon>close</v-icon>
+		      </v-btn>
+				</v-toolbar>
+				<v-card-text class="pt-3">
 					{{ bodyMsg }}
 				</v-card-text>
 				<v-card-actions>

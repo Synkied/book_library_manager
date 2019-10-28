@@ -3,7 +3,7 @@
     <v-app-bar app>
       <v-toolbar-title class="headline text-uppercase">
         <span>Book</span>
-        <span class="font-weight-light">Library Manager</span>
+        <span class="font-weight-light">Library Manadger</span>
       </v-toolbar-title>
       </v-btn>
     </v-app-bar>

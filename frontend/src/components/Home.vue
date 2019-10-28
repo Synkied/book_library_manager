@@ -4,10 +4,67 @@
       <v-flex xs5 px-5 py-2>
         <v-card>
           <v-card-title primary-title>
+            Add a book
+          </v-card-title>
+          <v-card-text>
+            <!-- Add a book instance -->
+            <v-select
+              :items="bookDescriptors"
+              v-model="bookInfos.bookDescriptor"
+              label="Book descriptor"
+              item-value="id">
+                <template v-slot:append-outer>
+                  <v-btn icon @click="addBookDescriptorOverlay = !addBookDescriptorOverlay">
+                    <v-icon small>add</v-icon>
+                  </v-btn>
+                </template>
+                <template slot="selection" slot-scope="data">
+                  <!-- HTML that describe how select should render selected items -->
+                  {{ data.item.title }}, {{ data.item.author_name }}
+                </template>
+                <template slot="item" slot-scope="data">
+                  <!-- HTML that describe how select should render items when the select is open -->
+                  {{ data.item.title }}, {{ data.item.author_name }}
+                </template>
+            </v-select>
+            <v-overlay
+              :absolute="true"
+              :value="addBookDescriptorOverlay">
+              <v-text-field
+                v-model="bookDescriptorInfos.title"
+                label="Book title"/>
+              <v-select
+                :items="authors"
+                v-model="bookDescriptorInfos.author"
+                label="Author"
+                return-object
+                item-text="name">
+                  <template v-slot:append-outer>
+                    <v-btn icon @click="addAuthorOverlay = !addAuthorOverlay">
+                      <v-icon small>add</v-icon>
+                    </v-btn>
+                  </template>
+              </v-select>
+              <v-btn
+                @click="addBookDescriptor();addBookDescriptorOverlay = !addBookDescriptorOverlay">
+                Add book descriptor
+              </v-btn>
+            </v-overlay>
+            <v-text-field
+              v-model="bookInfos.libraryLocation"
+              label="Location"/>
+            <v-btn @click="addBook()">Add book instance</v-btn>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+      <v-spacer></v-spacer>
+      <v-flex xs5 px-5 py-2>
+        <v-card>
+          <v-card-title primary-title>
             Add a book descriptor
           </v-card-title>
           <v-card-text>
-            <!-- Add a book -->
+            <!-- Add a book descriptor -->
             <v-text-field
               v-model="bookDescriptorInfos.title"
               label="Book title"/>
@@ -34,41 +91,7 @@
                 Add author
               </v-btn>
             </v-overlay>
-            <v-btn @click="addBookDescriptor()">Add book</v-btn>
-          </v-card-text>
-        </v-card>
-      </v-flex>
-      <v-spacer></v-spacer>
-      <v-flex xs5 px-5 py-2>
-        <v-card>
-          <v-card-title primary-title>
-            Add a book
-          </v-card-title>
-          <v-card-text>
-            <!-- Add a book instance -->
-            <v-select
-              :items="bookDescriptors"
-              v-model="bookInfos.bookDescriptor"
-              label="Book descriptor"
-              item-value="id">
-                <template v-slot:append-outer>
-                  <v-btn icon @click="addAuthorOverlay = !addAuthorOverlay">
-                    <v-icon small>add</v-icon>
-                  </v-btn>
-                </template>
-                <template slot="selection" slot-scope="data">
-                  <!-- HTML that describe how select should render selected items -->
-                  {{ data.item.title }}, {{ data.item.author_name }}
-                </template>
-                <template slot="item" slot-scope="data">
-                  <!-- HTML that describe how select should render items when the select is open -->
-                  {{ data.item.title }}, {{ data.item.author_name }}
-                </template>
-            </v-select>
-            <v-text-field
-              v-model="bookInfos.libraryLocation"
-              label="Location"/>
-            <v-btn @click="addBook()">Add book instance</v-btn>
+            <v-btn @click="addBookDescriptor()">Add book descriptor</v-btn>
           </v-card-text>
         </v-card>
       </v-flex>
@@ -95,12 +118,7 @@
               </v-list-item-content>
 
               <v-list-item-action>
-                <v-btn icon>
-                  <v-icon color="grey lighten-1">edit</v-icon>
-                </v-btn>
-              </v-list-item-action>
-              <v-list-item-action>
-                <v-btn @click="confirmModalBuilder('BookDescriptor', book.title);bookToDelete = book" icon>
+                <v-btn @click="confirmModalBuilder('Book', book.title);bookToDelete = book" icon>
                   <v-icon color="grey lighten-1">delete</v-icon>
                 </v-btn>
               </v-list-item-action>
@@ -129,11 +147,7 @@
                 <v-list-item-subtitle v-text="bookDescriptor.author_name"></v-list-item-subtitle>
               </v-list-item-content>
 
-              <v-list-item-action>
-                <v-btn icon>
-                  <v-icon color="grey lighten-1">edit</v-icon>
-                </v-btn>
-              </v-list-item-action>
+
               <v-list-item-action>
                 <v-btn @click="confirmModalBuilder('BookDescriptor', bookDescriptor.title);bookDescriptorToDelete = bookDescriptor" icon>
                   <v-icon color="grey lighten-1">delete</v-icon>
@@ -161,11 +175,6 @@
               </v-list-item-content>
 
               <v-list-item-action>
-                <v-btn icon>
-                  <v-icon color="grey lighten-1">edit</v-icon>
-                </v-btn>
-              </v-list-item-action>
-              <v-list-item-action>
                 <v-btn @click="confirmModalBuilder('Author', author.name);authorToDelete = author.name" icon>
                   <v-icon color="grey lighten-1">delete</v-icon>
                 </v-btn>
@@ -173,10 +182,10 @@
             </v-list-item>
           </v-list>
         </v-card>
+        <v-btn color="primary" @click="registerUser()">Add fake user</v-btn>
+        <v-btn color="grey" @click="deleteUser()">Remove fake user</v-btn>
       </v-flex>
     </v-layout>
-    <v-btn color="success" @click="registerUser()">text</v-btn>
-    <v-btn color="error" @click="deleteUser()">text</v-btn>
 
   <confirmModal
     v-if="confirmDeleteAuthor.display"
@@ -190,13 +199,24 @@
   </confirmModal>
 
   <confirmModal
+    v-if="confirmDeleteBookDescriptor.display"
+    :toolbarMsg='confirmDeleteBookDescriptor.toolbarMsg'
+    :bodyMsg='confirmDeleteBookDescriptor.bodyMsg'
+    :okBtnText='confirmDeleteBookDescriptor.okBtnText'
+    :cancelBtnText='confirmDeleteBookDescriptor.cancelBtnText'
+    :autofocus='confirmDeleteBookDescriptor.autofocus'
+    @action="deleteBookDescriptor(bookDescriptorToDelete)"
+    @close="confirmDeleteBookDescriptor.display = false">
+  </confirmModal>
+
+  <confirmModal
     v-if="confirmDeleteBook.display"
     :toolbarMsg='confirmDeleteBook.toolbarMsg'
     :bodyMsg='confirmDeleteBook.bodyMsg'
     :okBtnText='confirmDeleteBook.okBtnText'
     :cancelBtnText='confirmDeleteBook.cancelBtnText'
     :autofocus='confirmDeleteBook.autofocus'
-    @action="deleteBookDescriptor(bookDescriptorToDelete)"
+    @action="deleteBook(bookToDelete)"
     @close="confirmDeleteBook.display = false">
   </confirmModal>
 
@@ -222,13 +242,27 @@ export default {
         libraryLocation: ''
       },
       newBookAuthor: '',
+      newBookDescriptor: {
+        title: '',
+        author: ''
+      },
       authors: [],
       bookDescriptors: [],
       books: [],
       addAuthorOverlay: false,
+      addBookDescriptorOverlay: false,
       authorToDelete: '',
       bookDescriptorToDelete: '',
+      bookToDelete: '',
       confirmDeleteAuthor: {
+        display: false,
+        toolbarMsg: '',
+        bodyMsg: '',
+        okBtnText: '',
+        cancelBtnText: '',
+        autofocus: ''
+      },
+      confirmDeleteBookDescriptor: {
         display: false,
         toolbarMsg: '',
         bodyMsg: '',
@@ -262,14 +296,16 @@ export default {
           response = await this.$BackendAPI.bookDescriptorPost(data)
         } else {
           data = {
-            'author': this.bookInfos.author.id,
-            'title': this.bookInfos.title
+            'author': this.bookDescriptorInfos.author.id,
+            'title': this.bookDescriptorInfos.title
           }
           response = await this.$BackendAPI.bookDescriptorPost(data)
         }
         this.getBookDescriptors()
+        this.bookDescriptorInfos.author = ''
+        this.bookDescriptorInfos.title = ''
       } catch (err) {
-        console.error(err.response)
+        console.error(err)
       }
     },
     async deleteBookDescriptor (book) {
@@ -277,7 +313,20 @@ export default {
         let bookDescriptorToDelete = {}
         bookDescriptorToDelete.title = book.title
         bookDescriptorToDelete.author = book.author
+        console.log(bookDescriptorToDelete)
         let response = await this.$BackendAPI.bookDescriptorDelete(bookDescriptorToDelete)
+        this.getBookDescriptors()
+      } catch (err) {
+        console.error(err.response)
+      }
+    },
+    async deleteBook (book) {
+      try {
+        let bookToDelete = {}
+        bookToDelete.title = book.title
+        bookToDelete.author = book.author
+        console.log(bookToDelete)
+        let response = await this.$BackendAPI.bookDelete(bookToDelete)
         this.getBookDescriptors()
       } catch (err) {
         console.error(err.response)
@@ -321,13 +370,12 @@ export default {
     async getBooks () {
       try {
         let response = await this.$BackendAPI.booksGet()
-        let books = response.data.books.map(book => {
-            var matchingBookDescriptor = this.bookDescriptors.filter(bookDescriptor => bookDescriptor.id === book.book_descriptor)[0]
+        this.books = response.data.books.map(book => {
+            let matchingBookDescriptor = this.bookDescriptors.filter(bookDescriptor => bookDescriptor.id === book.book_descriptor)[0]
             book.title = matchingBookDescriptor.title
             book.author_name = matchingBookDescriptor.author_name
             return book
         })
-        this.books = books
       } catch (err) {
         console.error(err)
       }
@@ -345,6 +393,7 @@ export default {
           response = await this.$BackendAPI.bookPost(data)
         }
         this.getBookDescriptors()
+        this.getBooks()
       } catch (err) {
         console.error(err.response)
       }
@@ -391,6 +440,14 @@ export default {
         this.confirmDeleteAuthor.autofocus = 'No'
       }
       if (type === 'BookDescriptor') {
+        this.confirmDeleteBookDescriptor.display = true
+        this.confirmDeleteBookDescriptor.toolbarMsg = `Delete ${type}: ${name}`
+        this.confirmDeleteBookDescriptor.bodyMsg = `Do you really want to delete ${type}: ${name}?`
+        this.confirmDeleteBookDescriptor.okBtnText = 'Yes'
+        this.confirmDeleteBookDescriptor.cancelBtnText = 'No'
+        this.confirmDeleteBookDescriptor.autofocus = 'No'
+      }
+    if (type === 'Book') {
         this.confirmDeleteBook.display = true
         this.confirmDeleteBook.toolbarMsg = `Delete ${type}: ${name}`
         this.confirmDeleteBook.bodyMsg = `Do you really want to delete ${type}: ${name}?`
@@ -400,10 +457,10 @@ export default {
       }
     }
   },
-  mounted () {
-    this.getAuthors()
-    this.getBookDescriptors()
-    this.getBooks()
+  async mounted () {
+    await this.getAuthors()
+    await this.getBookDescriptors()
+    await this.getBooks()
   }
 }
 </script>

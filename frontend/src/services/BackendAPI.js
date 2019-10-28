@@ -93,6 +93,15 @@ const BackendAPI = {
                     throw err
                 }
             },
+            async bookDelete (data) {
+                try {
+                    let url = `${process.env.VUE_APP_backendAPIURL}api/book/delete`
+                    let response = await axios.get(url, data)
+                    return response
+                } catch (err) {
+                    throw err
+                }
+            },
         }
     }
 }
