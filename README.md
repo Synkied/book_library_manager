@@ -38,11 +38,3 @@ An online library.
 
 
 Go to (http://localhost:8080/) and use the frontend.
-
-## Launching Tests  
-
-`sh  
-    source ./bin/activate  
-    cd ./invoice_parser  
-    python manage.py test  
-`
