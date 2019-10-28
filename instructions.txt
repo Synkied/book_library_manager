@@ -1,0 +1,4 @@
+La bibliothèque municipale d'Avallon fait un appel d'offres pour une application qui permet de gérer son inventaire de livres. 
+Le but est de pouvoir s'inscrire en tant que membre, rechercher dans l'inventaire un livre, pouvoir le réserver, voir sa disponibilité ainsi que son emplacement dans la bibliothèque. 
+Le personnel de la bibliothèque doit pouvoir ajouter un livre, suivre les réservations, et définir l'emplacement du livre au sein de la bibliothèque. 
+Le but est de créer la structure du back-end en Python Flask et les prototypes de fonction.
