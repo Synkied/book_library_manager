@@ -116,7 +116,6 @@ class BookDescriptorDeleteView(MethodView):
     def post(self):
         try:
             post_data = request.get_json()
-            print(post_data)
             query = BookDescriptor.delete().where(
                 BookDescriptor.title == post_data['title'],
                 BookDescriptor.author == post_data['author'],
@@ -174,12 +173,12 @@ class BookDeleteView(MethodView):
         try:
             post_data = request.get_json()
             query = Book.delete().where(
-                Book.title == post_data['title'],
-                Book.author == post_data['author'],
+                Book.book_descriptor == post_data['book_descriptor'],
+                Book.library_location == post_data['library_location'],
             )
             query.execute()
             message = 'Book: {}, {} deleted.'.format(
-                post_data['title'], post_data['author']
+                post_data['book_descriptor'], post_data['library_location']
             )
             response = jsonify({'data': message})
             response.status_code = 200
